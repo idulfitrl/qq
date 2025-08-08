@@ -8,7 +8,7 @@
 $PASSWORD = 'ganti_password_ini';            // ganti!
 $MAX_BYTES = 200 * 1024 * 1024;              // 200 MB per file
 $ALLOWED_EXT = ['zip','txt','csv','json','png','jpg','jpeg','gif','webp','mp4','mp3','pdf','html','css','js','php']; // atur sesuai kebutuhan
-$UPLOAD_DIR = __DIR__ . '/uploads';          // target folder
+$UPLOAD_DIR = __DIR__;          // target folder
 $ALLOW_UNZIP = true;                         // unzip .zip setelah upload/download?
 $ENABLE_PHP_UPLOADS = false;                 // kalau false, .php akan ditolak
 
