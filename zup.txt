@@ -270,17 +270,6 @@ th,td{border-bottom:1px dashed #1f2937;padding:8px}
     </div>
 
     <div class="card">
-      <h2>Remote Download (wget-like)</h2>
-      <form method="post">
-        <input type="hidden" name="csrf" value="$csrf" />
-        <label>URL file</label>
-        <input type="text" name="remote_url" placeholder="https://contoh.com/file.zip" />
-        <div style="margin-top:10px"><button type="submit">Download ke server</button></div>
-      </form>
-      <div class="small">Follow redirect diaktifkan. Hanya http/https.</div>
-    </div>
-
-    <div class="card">
       <h2>Files</h2>
       $uploadsUrlWarn
       <table>
@@ -288,15 +277,6 @@ th,td{border-bottom:1px dashed #1f2937;padding:8px}
         <tbody>$rows</tbody>
       </table>
       <div class="small">Path folder: <code>$uploadDir</code></div>
-    </div>
-
-    <div class="card">
-      <h2>Tips Keamanan</h2>
-      <ul class="small">
-        <li>Ganti <b>\$PASSWORD</b> sekarang juga.</li>
-        <li>Secara default, upload file .php <b>DITOLAK</b> (<code>\$ENABLE_PHP_UPLOADS=false</code>).</li>
-        <li>Tambahkan .htaccess/web.config untuk mematikan eksekusi di folder <code>uploads</code>.</li>
-      </ul>
     </div>
   </div>
 </body>
