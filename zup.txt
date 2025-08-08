@@ -1,12 +1,12 @@
 <?php
 /*************************************************
- * Simple Secure Uploader + Remote Downloader
+ * Secure Uploader + Remote Downloader (Multi-file)
  * Drop-in for Azure App Service / any PHP host
  *************************************************/
 
 // ====== CONFIG ======
-$PASSWORD = 'ganti_password_ini';           // ganti!
-$MAX_BYTES = 200 * 1024 * 1024;              // 200 MB
+$PASSWORD = 'ganti_password_ini';            // ganti!
+$MAX_BYTES = 200 * 1024 * 1024;              // 200 MB per file
 $ALLOWED_EXT = ['zip','txt','csv','json','png','jpg','jpeg','gif','webp','mp4','mp3','pdf','html','css','js','php']; // atur sesuai kebutuhan
 $UPLOAD_DIR = __DIR__ . '/uploads';          // target folder
 $ALLOW_UNZIP = true;                         // unzip .zip setelah upload/download?
@@ -48,9 +48,7 @@ function safe_name($name) {
   $name = preg_replace('/\s+/', '_', $name);
   return trim($name, '._-') ?: ('file_' . time());
 }
-function ext_of($path) {
-  return strtolower(pathinfo($path, PATHINFO_EXTENSION));
-}
+function ext_of($path) { return strtolower(pathinfo($path, PATHINFO_EXTENSION)); }
 function deny_php($ext, $enable_php_uploads) {
   if ($enable_php_uploads) return false;
   return in_array($ext, ['php','php3','php4','php5','phtml','phar','inc']);
@@ -67,39 +65,63 @@ function unzip_to($zipPath, $targetDir, &$outMsg) {
 
 // ====== HANDLE UPLOAD ======
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($errors)) {
-  // File upload
-  if (isset($_FILES['file']) && $_FILES['file']['error'] !== UPLOAD_ERR_NO_FILE) {
-    $f = $_FILES['file'];
-    if ($f['error'] !== UPLOAD_ERR_OK) {
-      $errors[] = 'Upload error code: ' . $f['error'];
-    } elseif ($f['size'] > $MAX_BYTES) {
-      $errors[] = 'File terlalu besar (max '.number_format($MAX_BYTES/1048576,1).' MB).';
-    } else {
-      $ext = ext_of($f['name']);
-      if (deny_php($ext, $ENABLE_PHP_UPLOADS)) { $errors[] = 'Upload file PHP dinonaktifkan.'; }
-      elseif (!in_array($ext, $ALLOWED_EXT)) { $errors[] = 'Ekstensi tidak diizinkan: '.$ext; }
-      else {
-        $name = safe_name($f['name']);
-        $target = $UPLOAD_DIR . '/' . $name;
-        if (move_uploaded_file($f['tmp_name'], $target)) {
-          $messages[] = "Upload OK → $name (".number_format(filesize($target))." bytes)";
-          if ($ALLOW_UNZIP && $ext === 'zip') {
-            $unz = '';
-            unzip_to($target, $UPLOAD_DIR, $unz);
-            $messages[] = $unz;
-          }
-        } else { $errors[] = 'Gagal memindahkan file.'; }
+
+  // --- Multi-file upload: input name="files[]" multiple ---
+  if (!empty($_FILES['files']) && is_array($_FILES['files']['name'])) {
+    $names  = $_FILES['files']['name'];
+    $tmp    = $_FILES['files']['tmp_name'];
+    $sizes  = $_FILES['files']['size'];
+    $errs   = $_FILES['files']['error'];
+
+    for ($i = 0; $i < count($names); $i++) {
+      if ($errs[$i] === UPLOAD_ERR_NO_FILE) continue; // skip slot kosong
+
+      $orig = $names[$i];
+      $errc = $errs[$i];
+      $sz   = $sizes[$i];
+      $tmpp = $tmp[$i];
+
+      if ($errc !== UPLOAD_ERR_OK) {
+        $errors[] = "[$orig] Upload error code: $errc";
+        continue;
+      }
+      if ($sz > $MAX_BYTES) {
+        $errors[] = "[$orig] File terlalu besar (max ".number_format($MAX_BYTES/1048576,1)." MB).";
+        continue;
+      }
+
+      $ext = ext_of($orig);
+      if (deny_php($ext, $ENABLE_PHP_UPLOADS)) {
+        $errors[] = "[$orig] Upload file PHP dinonaktifkan.";
+        continue;
+      }
+      if (!in_array($ext, $ALLOWED_EXT)) {
+        $errors[] = "[$orig] Ekstensi tidak diizinkan: $ext";
+        continue;
+      }
+
+      $name = safe_name($orig);
+      $target = $UPLOAD_DIR . '/' . $name;
+
+      if (move_uploaded_file($tmpp, $target)) {
+        $messages[] = "Upload OK → $name (".number_format(filesize($target))." bytes)";
+        if ($ALLOW_UNZIP && $ext === 'zip') {
+          $unz = '';
+          unzip_to($target, $UPLOAD_DIR, $unz);
+          $messages[] = $unz;
+        }
+      } else {
+        $errors[] = "[$orig] Gagal memindahkan file.";
       }
     }
   }
 
-  // Remote download (wget-like)
+  // --- Remote download (wget-like) ---
   if (!empty($_POST['remote_url'])) {
     $url = trim($_POST['remote_url']);
     if (!filter_var($url, FILTER_VALIDATE_URL)) {
       $errors[] = 'URL tidak valid.';
     } else {
-      // Hard block schema
       $scheme = parse_url($url, PHP_URL_SCHEME);
       if (!in_array(strtolower($scheme), ['http','https'])) {
         $errors[] = 'Skema URL harus http/https.';
@@ -240,9 +262,9 @@ th,td{border-bottom:1px dashed #1f2937;padding:8px}
       <h2>Upload File</h2>
       <form method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf" value="$csrf" />
-        <label>Pilih file</label>
-        <input type="file" name="file" required />
-        <div class="small">Max size & whitelist diatur di CONFIG.</div>
+        <label>Pilih file (bisa banyak)</label>
+        <input type="file" name="files[]" multiple required />
+        <div class="small">Max per file & whitelist diatur di CONFIG.</div>
         <div style="margin-top:10px"><button type="submit">Upload</button></div>
       </form>
     </div>
