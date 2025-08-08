@@ -1,6 +1,6 @@
 <?php
 /*************************************************
- * Secure Uploader + Remote Downloader (Multi-file)
+ * Secure Uploader (Multi-file) — upload ke folder saat ini
  * Drop-in for Azure App Service / any PHP host
  *************************************************/
 
@@ -8,8 +8,8 @@
 $PASSWORD = 'ganti_password_ini';            // ganti!
 $MAX_BYTES = 200 * 1024 * 1024;              // 200 MB per file
 $ALLOWED_EXT = ['zip','txt','csv','json','png','jpg','jpeg','gif','webp','mp4','mp3','pdf','html','css','js','php']; // atur sesuai kebutuhan
-$UPLOAD_DIR = __DIR__;          // target folder
-$ALLOW_UNZIP = true;                         // unzip .zip setelah upload/download?
+$UPLOAD_DIR = __DIR__;                       // target folder: sama dengan uploader.php
+$ALLOW_UNZIP = true;                         // unzip .zip setelah upload?
 $ENABLE_PHP_UPLOADS = false;                 // kalau false, .php akan ditolak
 
 // ====== INIT ======
@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($errors)) {
     $errs   = $_FILES['files']['error'];
 
     for ($i = 0; $i < count($names); $i++) {
-      if ($errs[$i] === UPLOAD_ERR_NO_FILE) continue; // skip slot kosong
+      if ($errs[$i] === UPLOAD_ERR_NO_FILE) continue;
 
       $orig = $names[$i];
       $errc = $errs[$i];
@@ -112,56 +112,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($errors)) {
         }
       } else {
         $errors[] = "[$orig] Gagal memindahkan file.";
-      }
-    }
-  }
-
-  // --- Remote download (wget-like) ---
-  if (!empty($_POST['remote_url'])) {
-    $url = trim($_POST['remote_url']);
-    if (!filter_var($url, FILTER_VALIDATE_URL)) {
-      $errors[] = 'URL tidak valid.';
-    } else {
-      $scheme = parse_url($url, PHP_URL_SCHEME);
-      if (!in_array(strtolower($scheme), ['http','https'])) {
-        $errors[] = 'Skema URL harus http/https.';
-      } else {
-        $fname = safe_name(basename(parse_url($url, PHP_URL_PATH) ?: 'download_' . time()));
-        $ext = ext_of($fname);
-        if (deny_php($ext, $ENABLE_PHP_UPLOADS)) { $errors[] = 'Download file PHP dinonaktifkan.'; }
-        elseif (!in_array($ext, $ALLOWED_EXT)) { $errors[] = 'Ekstensi tidak diizinkan: '.$ext; }
-        else {
-          $dest = $UPLOAD_DIR . '/' . $fname;
-          $ch = curl_init($url);
-          $fp = fopen($dest, 'w');
-          curl_setopt_array($ch, [
-            CURLOPT_FILE => $fp,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_MAXREDIRS => 5,
-            CURLOPT_TIMEOUT => 600,
-            CURLOPT_USERAGENT => 'SimplePHPDownloader/1.0',
-          ]);
-          $ok = curl_exec($ch);
-          $http = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-          $err = curl_error($ch);
-          curl_close($ch);
-          fclose($fp);
-
-          if (!$ok || $http >= 400) {
-            @unlink($dest);
-            $errors[] = 'Gagal download (HTTP '.$http.') '.($err ?: '');
-          } elseif (filesize($dest) > $MAX_BYTES) {
-            @unlink($dest);
-            $errors[] = 'File hasil download melebihi batas size.';
-          } else {
-            $messages[] = "Download OK → $fname (".number_format(filesize($dest))." bytes)";
-            if ($ALLOW_UNZIP && ext_of($dest) === 'zip') {
-              $unz = '';
-              unzip_to($dest, $UPLOAD_DIR, $unz);
-              $messages[] = $unz;
-            }
-          }
-        }
       }
     }
   }
@@ -221,11 +171,19 @@ HTML;
 function page($errors,$messages,$files,$csrf,$uploadDir) {
   $errHtml = $errors ? '<div class="err">'.implode('<br>', array_map('htmlspecialchars',$errors)).'</div>' : '';
   $msgHtml = $messages ? '<div class="msg">'.implode('<br>', array_map('htmlspecialchars',$messages)).'</div>' : '';
+
+  // Kalau upload ke folder yang sama dengan uploader.php, link langsung ke nama file
+  $sameDir = realpath($uploadDir) === realpath(__DIR__);
+
   $rows = '';
   foreach ($files as $f) {
-    $rows .= '<tr><td>'.htmlspecialchars($f['name']).'</td><td style="text-align:right">'.number_format($f['size']).'</td><td>'.$f['mtime'].'</td><td><a href="uploads/'.rawurlencode($f['name']).'" target="_blank">open</a></td></tr>';
+    $href = $sameDir
+      ? rawurlencode($f['name'])
+      : basename($uploadDir) . '/' . rawurlencode($f['name']);
+    $rows .= '<tr><td>'.htmlspecialchars($f['name']).'</td><td style="text-align:right">'.number_format($f['size']).'</td><td>'.$f['mtime'].'</td><td><a href="'.$href.'" target="_blank">open</a></td></tr>';
   }
-  $uploadsUrlWarn = is_writable($uploadDir) ? '' : '<div class="warn">Folder uploads tidak writable. Perbaiki permission.</div>';
+
+  $uploadsUrlWarn = is_writable($uploadDir) ? '' : '<div class="warn">Target folder tidak writable. Perbaiki permission.</div>';
 
   return <<<HTML
 <!doctype html>
