@@ -1,0 +1,283 @@
+<?php
+/*************************************************
+ * Simple Secure Uploader + Remote Downloader
+ * Drop-in for Azure App Service / any PHP host
+ *************************************************/
+
+// ====== CONFIG ======
+$PASSWORD = 'ganti_password_ini';           // ganti!
+$MAX_BYTES = 200 * 1024 * 1024;              // 200 MB
+$ALLOWED_EXT = ['zip','txt','csv','json','png','jpg','jpeg','gif','webp','mp4','mp3','pdf','html','css','js','php']; // atur sesuai kebutuhan
+$UPLOAD_DIR = __DIR__ . '/uploads';          // target folder
+$ALLOW_UNZIP = true;                         // unzip .zip setelah upload/download?
+$ENABLE_PHP_UPLOADS = false;                 // kalau false, .php akan ditolak
+
+// ====== INIT ======
+session_start();
+if (!is_dir($UPLOAD_DIR)) { @mkdir($UPLOAD_DIR, 0775, true); }
+$errors = [];
+$messages = [];
+
+// ====== AUTH ======
+if (isset($_POST['logout'])) {
+  session_destroy();
+  header('Location: ' . $_SERVER['PHP_SELF']); exit;
+}
+if (empty($_SESSION['ok'])) {
+  if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pass'])) {
+    if (hash_equals($PASSWORD, $_POST['pass'])) {
+      $_SESSION['ok'] = true;
+      header('Location: ' . $_SERVER['PHP_SELF']); exit;
+    } else { $errors[] = 'Password salah.'; }
+  }
+  echo login_page($errors);
+  exit;
+}
+
+// ====== CSRF ======
+if (empty($_SESSION['csrf'])) {
+  $_SESSION['csrf'] = bin2hex(random_bytes(16));
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['csrf']) && $_POST['csrf'] !== $_SESSION['csrf']) {
+  $errors[] = 'CSRF token invalid. Reload halaman.';
+}
+
+// ====== HELPERS ======
+function safe_name($name) {
+  $name = preg_replace('/[^\p{L}\p{N}\.\-\_\s]/u','_', $name);
+  $name = preg_replace('/\s+/', '_', $name);
+  return trim($name, '._-') ?: ('file_' . time());
+}
+function ext_of($path) {
+  return strtolower(pathinfo($path, PATHINFO_EXTENSION));
+}
+function deny_php($ext, $enable_php_uploads) {
+  if ($enable_php_uploads) return false;
+  return in_array($ext, ['php','php3','php4','php5','phtml','phar','inc']);
+}
+function unzip_to($zipPath, $targetDir, &$outMsg) {
+  $zip = new ZipArchive();
+  if ($zip->open($zipPath) === TRUE) {
+    $zip->extractTo($targetDir);
+    $zip->close();
+    $outMsg = 'Unzip OK → ' . basename($zipPath);
+    return true;
+  } else { $outMsg = 'Gagal unzip.'; return false; }
+}
+
+// ====== HANDLE UPLOAD ======
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($errors)) {
+  // File upload
+  if (isset($_FILES['file']) && $_FILES['file']['error'] !== UPLOAD_ERR_NO_FILE) {
+    $f = $_FILES['file'];
+    if ($f['error'] !== UPLOAD_ERR_OK) {
+      $errors[] = 'Upload error code: ' . $f['error'];
+    } elseif ($f['size'] > $MAX_BYTES) {
+      $errors[] = 'File terlalu besar (max '.number_format($MAX_BYTES/1048576,1).' MB).';
+    } else {
+      $ext = ext_of($f['name']);
+      if (deny_php($ext, $ENABLE_PHP_UPLOADS)) { $errors[] = 'Upload file PHP dinonaktifkan.'; }
+      elseif (!in_array($ext, $ALLOWED_EXT)) { $errors[] = 'Ekstensi tidak diizinkan: '.$ext; }
+      else {
+        $name = safe_name($f['name']);
+        $target = $UPLOAD_DIR . '/' . $name;
+        if (move_uploaded_file($f['tmp_name'], $target)) {
+          $messages[] = "Upload OK → $name (".number_format(filesize($target))." bytes)";
+          if ($ALLOW_UNZIP && $ext === 'zip') {
+            $unz = '';
+            unzip_to($target, $UPLOAD_DIR, $unz);
+            $messages[] = $unz;
+          }
+        } else { $errors[] = 'Gagal memindahkan file.'; }
+      }
+    }
+  }
+
+  // Remote download (wget-like)
+  if (!empty($_POST['remote_url'])) {
+    $url = trim($_POST['remote_url']);
+    if (!filter_var($url, FILTER_VALIDATE_URL)) {
+      $errors[] = 'URL tidak valid.';
+    } else {
+      // Hard block schema
+      $scheme = parse_url($url, PHP_URL_SCHEME);
+      if (!in_array(strtolower($scheme), ['http','https'])) {
+        $errors[] = 'Skema URL harus http/https.';
+      } else {
+        $fname = safe_name(basename(parse_url($url, PHP_URL_PATH) ?: 'download_' . time()));
+        $ext = ext_of($fname);
+        if (deny_php($ext, $ENABLE_PHP_UPLOADS)) { $errors[] = 'Download file PHP dinonaktifkan.'; }
+        elseif (!in_array($ext, $ALLOWED_EXT)) { $errors[] = 'Ekstensi tidak diizinkan: '.$ext; }
+        else {
+          $dest = $UPLOAD_DIR . '/' . $fname;
+          $ch = curl_init($url);
+          $fp = fopen($dest, 'w');
+          curl_setopt_array($ch, [
+            CURLOPT_FILE => $fp,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS => 5,
+            CURLOPT_TIMEOUT => 600,
+            CURLOPT_USERAGENT => 'SimplePHPDownloader/1.0',
+          ]);
+          $ok = curl_exec($ch);
+          $http = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+          $err = curl_error($ch);
+          curl_close($ch);
+          fclose($fp);
+
+          if (!$ok || $http >= 400) {
+            @unlink($dest);
+            $errors[] = 'Gagal download (HTTP '.$http.') '.($err ?: '');
+          } elseif (filesize($dest) > $MAX_BYTES) {
+            @unlink($dest);
+            $errors[] = 'File hasil download melebihi batas size.';
+          } else {
+            $messages[] = "Download OK → $fname (".number_format(filesize($dest))." bytes)";
+            if ($ALLOW_UNZIP && ext_of($dest) === 'zip') {
+              $unz = '';
+              unzip_to($dest, $UPLOAD_DIR, $unz);
+              $messages[] = $unz;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// ====== LIST FILES ======
+$files = [];
+foreach (glob($UPLOAD_DIR.'/*') as $p) {
+  if (is_file($p)) {
+    $files[] = [
+      'name' => basename($p),
+      'size' => filesize($p),
+      'mtime'=> date('Y-m-d H:i:s', filemtime($p))
+    ];
+  }
+}
+usort($files, fn($a,$b) => strcmp($b['mtime'],$a['mtime']));
+
+// ====== RENDER ======
+echo page($errors, $messages, $files, $_SESSION['csrf'], $UPLOAD_DIR);
+
+
+// ====== VIEWS ======
+function login_page($errors) {
+  $errHtml = $errors ? '<div class="err">'.implode('<br>', array_map('htmlspecialchars',$errors)).'</div>' : '';
+  return <<<HTML
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Login Uploader</title>
+<style>
+body{font-family:system-ui,Segoe UI,Arial;margin:0;background:#0f172a;color:#e2e8f0;}
+.box{max-width:420px;margin:10vh auto;background:#111827;border:1px solid #1f2937;border-radius:12px;padding:24px}
+h1{margin:0 0 16px;font-size:20px}
+input[type=password],input[type=text]{width:100%;padding:10px;border-radius:8px;border:1px solid #374151;background:#0b1220;color:#e5e7eb}
+button{padding:10px 14px;border:0;border-radius:8px;background:#3b82f6;color:#fff;cursor:pointer}
+.err{background:#7f1d1d;color:#fecaca;padding:10px;border-radius:8px;margin-bottom:12px}
+.small{color:#9ca3af;font-size:12px;margin-top:8px}
+</style>
+</head>
+<body>
+  <div class="box">
+    <h1>Secure Uploader — Login</h1>
+    $errHtml
+    <form method="post">
+      <input type="password" name="pass" placeholder="Password" required />
+      <div class="small">Tips: ganti password di bagian CONFIG file.</div>
+      <div style="margin-top:12px"><button type="submit">Masuk</button></div>
+    </form>
+  </div>
+</body>
+</html>
+HTML;
+}
+
+function page($errors,$messages,$files,$csrf,$uploadDir) {
+  $errHtml = $errors ? '<div class="err">'.implode('<br>', array_map('htmlspecialchars',$errors)).'</div>' : '';
+  $msgHtml = $messages ? '<div class="msg">'.implode('<br>', array_map('htmlspecialchars',$messages)).'</div>' : '';
+  $rows = '';
+  foreach ($files as $f) {
+    $rows .= '<tr><td>'.htmlspecialchars($f['name']).'</td><td style="text-align:right">'.number_format($f['size']).'</td><td>'.$f['mtime'].'</td><td><a href="uploads/'.rawurlencode($f['name']).'" target="_blank">open</a></td></tr>';
+  }
+  $uploadsUrlWarn = is_writable($uploadDir) ? '' : '<div class="warn">Folder uploads tidak writable. Perbaiki permission.</div>';
+
+  return <<<HTML
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Secure Uploader</title>
+<style>
+body{font-family:system-ui,Segoe UI,Arial;margin:0;background:#0f172a;color:#e2e8f0}
+.wrap{max-width:980px;margin:24px auto;padding:0 16px}
+.card{background:#0b1220;border:1px solid #1f2937;border-radius:14px;padding:16px;margin-bottom:16px}
+h1{font-size:22px;margin:0 0 12px}
+label{display:block;margin:8px 0 6px}
+input[type=text],input[type=file]{width:100%;padding:10px;border-radius:8px;border:1px solid #374151;background:#0b1220;color:#e5e7eb}
+button{padding:10px 14px;border:0;border-radius:8px;background:#3b82f6;color:#fff;cursor:pointer}
+.err{background:#7f1d1d;color:#fecaca;padding:10px;border-radius:8px;margin-bottom:12px}
+.msg{background:#065f46;color:#d1fae5;padding:10px;border-radius:8px;margin-bottom:12px}
+.warn{background:#78350f;color:#fde68a;padding:10px;border-radius:8px;margin-top:8px}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
+th,td{border-bottom:1px dashed #1f2937;padding:8px}
+.small{color:#9ca3af;font-size:12px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:800px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <form method="post"><button name="logout" value="1">Logout</button></form>
+    <h1>Secure Uploader</h1>
+    $errHtml
+    $msgHtml
+
+    <div class="card">
+      <h2>Upload File</h2>
+      <form method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrf" value="$csrf" />
+        <label>Pilih file</label>
+        <input type="file" name="file" required />
+        <div class="small">Max size & whitelist diatur di CONFIG.</div>
+        <div style="margin-top:10px"><button type="submit">Upload</button></div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Remote Download (wget-like)</h2>
+      <form method="post">
+        <input type="hidden" name="csrf" value="$csrf" />
+        <label>URL file</label>
+        <input type="text" name="remote_url" placeholder="https://contoh.com/file.zip" />
+        <div style="margin-top:10px"><button type="submit">Download ke server</button></div>
+      </form>
+      <div class="small">Follow redirect diaktifkan. Hanya http/https.</div>
+    </div>
+
+    <div class="card">
+      <h2>Files</h2>
+      $uploadsUrlWarn
+      <table>
+        <thead><tr><th>Nama</th><th style="text-align:right">Size</th><th>Updated</th><th></th></tr></thead>
+        <tbody>$rows</tbody>
+      </table>
+      <div class="small">Path folder: <code>$uploadDir</code></div>
+    </div>
+
+    <div class="card">
+      <h2>Tips Keamanan</h2>
+      <ul class="small">
+        <li>Ganti <b>\$PASSWORD</b> sekarang juga.</li>
+        <li>Secara default, upload file .php <b>DITOLAK</b> (<code>\$ENABLE_PHP_UPLOADS=false</code>).</li>
+        <li>Tambahkan .htaccess/web.config untuk mematikan eksekusi di folder <code>uploads</code>.</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>
+HTML;
+}
