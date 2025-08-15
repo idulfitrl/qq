@@ -42,12 +42,12 @@ if (isset($_GET['games'])) {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><?php echo $BRANDS ?> Link Slot Gacor Hari Ini Daftar Slot MPO Play Resmi Deposit 5000 Uang Asli</title>
-    <meta name="description" content="<?php echo $BRANDS ?> adalah platform judi slot gacor hari ini yang menyediakan berbagai permainan mpo slot gacor dengan menggunakan uang asli bernominal 5000 setiap orang bisa mencari keuntungan lebih mudah seperti bermain diseluruh permainan slot online dan nikmati banyak fasilitas resmi serta bonus terbaik yang bisa didapatkan melalui link mpo play online. dapatkan layanan 24jam nonstop untuk setiap orang mengalami kendala saat bermain mpo slot gacor hari ini terbaik 2025." />
+    <title><?php echo $BRANDS ?>: Slot Gacor Situs slot qris Judi Online Gampang Menang Se Indonesia</title>
+    <meta name="description" content="<?php echo $BRANDS ?> merekomendasi hari ini telah hadir situs slot qris slot gacor judi online <?php echo $BRANDS ?>, membuat kita tergila gila akan gampang menang sensational hujan perkalian se Indonesia, Daftar <?php echo $BRANDS ?> sekarang." />
     <meta name="robots" content="index,follow" />
     <link href="https://files.sitestatic.net/banners/20240823005231000000f9073faf00MKPAFAA__2334x1167.jpg" rel="shortcut icon" type="image/x-icon" />
-    <link rel="canonical" href="https://peko.fkip.unla.ac.id/router.php?slug=<?php echo $BRANDS ?>" />
-    <meta property="og:url" content="https://peko.fkip.unla.ac.id/router.php?slug=<?php echo $BRANDS ?>" />
+    <link rel="canonical" href="https://pgsd.fkip.unla.ac.id/router.php?slug=<?php echo $BRANDS ?>" />
+    <meta property="og:url" content="https://pgsd.fkip.unla.ac.id/router.php?slug=<?php echo $BRANDS ?>" />
     <meta property="og:site_name" content="<?php echo $BRANDS ?>" />
     <meta property="og:image:alt" content="<?php echo $BRANDS ?>" />
     <meta property="og:image" content="https://files.sitestatic.net/banners/20240823005231000000f9073faf00MKPAFAA__2334x1167.jpg" />
@@ -68,7 +68,7 @@ if (isset($_GET['games'])) {
       <a href="https://ibit.ly/tunelraja168" target="_blank" rel="noreferrer noopener" role="button" class="btn-daftar">LOGIN RESMI <?php echo $BRANDS ?></a>
       <a href="https://ibit.ly/tunelraja168" target="_blank" rel="noreferrer noopener" role="button" class="btn-daftar">DAFTAR AKUN VIP</a>
       <a href="https://ibit.ly/tunelraja168" target="_blank" rel="noreferrer noopener" role="button" class="btn-daftar">CS <?php echo $BRANDS ?> 24 JAM ONLINE</a>
-      <p class="copyright"> Copyright © <?php echo $BRANDS ?>. All rights Reserved. <a style="color: #ffffff;" href="https://peko.fkip.unla.ac.id/router.php?slug=<?php echo $BRANDS ?>"></a>
+      <p class="copyright"> Copyright © <?php echo $BRANDS ?>. All rights Reserved. <a style="color: #ffffff;" href="https://pgsd.fkip.unla.ac.id/router.php?slug=<?php echo $BRANDS ?>"></a>
       </p>
     </div>
   </body>
