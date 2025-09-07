@@ -17,13 +17,13 @@
     <meta name="og:type" content="product" />
     <meta name="og:description" content="Pemain baru Mahjong Wins 3 dipastikan mudah menang di FIJISLOT Malang. Sistem yang ramah pemula membuat semua orang punya peluang sama. Saatnya mulai perjalanan kemenangan Anda." />
     <meta name="keywords" content="FIJISLOT" />
-    <meta name="og:image" content="https://smheng168.com/img/pemain-baru-wins-3-dipastikan-mudah-fiji.jpg" />
+    <meta name="og:image" content="https://smheng168.com/img/turnamen-raja168-banjarmasin-hujani.jpg" />
     <link rel="icon" type="image/x-icon" href="https://smheng168.com/img/seoganteng.png" />
     <link rel="manifest" href="https://g.lazcdn.com/g/lzdfe/pwa-assets/5.0.7/manifest/id.json" />
     <link rel="canonical" href="https://ejournal.iainkendari.ac.id/public/journals/36/pemain-baru-wins-3-dipastikan-mudah-fiji.html" />
     <link rel="amphtml" href="https://emsiseo.b-cdn.net/perpusmercubaktijayaacid.html">
     <!-- start preload -->
-    <link rel="preload" href="https://smheng168.com/img/pemain-baru-wins-3-dipastikan-mudah-fiji.jpg" as="image" />
+    <link rel="preload" href="https://smheng168.com/img/turnamen-raja168-banjarmasin-hujani.jpg" as="image" />
     <link rel="preconnect dns-prefetch" href="https://cart.lazada.co.id" />
     <link rel="preconnect dns-prefetch" href="https://acs-m.lazada.co.id" />
     <link rel="preconnect dns-prefetch" href="https://laz-g-cdn.alicdn.com" />
@@ -65,7 +65,7 @@ gtag('config', 'G-RZ16XX4YT2');
     <script>(function(){try{if(window.aplusPageIdSetComplete||/AliApp/i.test(navigator.userAgent)){return}
         var get_cookie=function(sName){var sRE="(?:; )?"+sName+"=([^;]*);?";var oRE=new RegExp(sRE);if(oRE.test(document.cookie)){var str=decodeURIComponent(RegExp["$1"])||"";if(str.trim().length>0){return str}else{return"-"}}else{return"-"}};var getRand=function(){var page_id=get_cookie("cna")||"001";page_id=page_id.toLowerCase().replace(/[^a-z\d]/g,"");page_id=page_id.substring(0,16);var d=new Date().getTime();var randend=[page_id,d.toString(16)].join("");for(var i=1;i<10;i++){var _r=parseInt(Math.round(Math.random()*10000000000),10).toString(16);randend+=_r}
         randend=randend.substr(0,42);return randend};var pageid=getRand();var aq=window.aplus_queue||(window.aplus_queue=[]);aq.push({action:"aplus.appendMetaInfo",arguments:["aplus-cpvdata",{pageid:pageid}],});aq.push({action:"aplus.appendMetaInfo",arguments:["aplus-exdata",{st_page_id:pageid}],});var gq=window.goldlog_queue||(window.goldlog_queue=[]);gq.push({action:"goldlog.appendMetaInfo",arguments:["aplus-cpvdata",{pageid:pageid}],});gq.push({action:"goldlog.appendMetaInfo",arguments:["aplus-exdata",{st_page_id:pageid}],});window.aplusPageIdSetComplete=!0}catch(err){console.error(err)}})();</script>
-    <script type="text/javascript">var timings={start:Date.now(),};var dataLayer=window.dataLayer||[];var pdpTrackingData='{"pdt_category":["Televisi & Video"],"pagetype":"pdp","pdt_discount":"","pdt_photo":"https://smheng168.com/img/pemain-baru-wins-3-dipastikan-mudah-fiji.jpg","v_voya":1,"brand_name":"Samsung","brand_id":"842","pdt_sku":3642482616,"core":{"country":"ID","layoutType":"desktop","language":"in","currencyCode":"IDR"},"seller_name":"","pdt_simplesku":6108584955,"pdt_name":"Pemain Baru Mahjong Wins 3 Dipastikan Mudah Menang di FIJISLOT Malang dirangkum ulang oleh FIJISLOT dengan tips dan strategi serta manajemen modal dan pemilihan jam ideal agar pemain Malang meningkatkan peluang menang secara konsisten","page":{"regCategoryId":"300300002584","xParams":"_p_typ=pdp&_p_ispdp=1&_p_item=3642482616_ID-6108584955&_p_prod=3642482616&_p_sku=6108584955&_p_slr="},"supplier_id":"","pdt_price":"Rp2.699.000"}';try{pdpTrackingData=JSON.parse(pdpTrackingData);pdpTrackingData.v_voya=!1;dataLayer.push(pdpTrackingData);dataLayer.push({gtm_enable:!1,v_voya:!1,})}catch(e){if(window.console){console.log(e)}}
+    <script type="text/javascript">var timings={start:Date.now(),};var dataLayer=window.dataLayer||[];var pdpTrackingData='{"pdt_category":["Televisi & Video"],"pagetype":"pdp","pdt_discount":"","pdt_photo":"https://smheng168.com/img/turnamen-raja168-banjarmasin-hujani.jpg","v_voya":1,"brand_name":"Samsung","brand_id":"842","pdt_sku":3642482616,"core":{"country":"ID","layoutType":"desktop","language":"in","currencyCode":"IDR"},"seller_name":"","pdt_simplesku":6108584955,"pdt_name":"Pemain Baru Mahjong Wins 3 Dipastikan Mudah Menang di FIJISLOT Malang dirangkum ulang oleh FIJISLOT dengan tips dan strategi serta manajemen modal dan pemilihan jam ideal agar pemain Malang meningkatkan peluang menang secara konsisten","page":{"regCategoryId":"300300002584","xParams":"_p_typ=pdp&_p_ispdp=1&_p_item=3642482616_ID-6108584955&_p_prod=3642482616&_p_sku=6108584955&_p_slr="},"supplier_id":"","pdt_price":"Rp2.699.000"}';try{pdpTrackingData=JSON.parse(pdpTrackingData);pdpTrackingData.v_voya=!1;dataLayer.push(pdpTrackingData);dataLayer.push({gtm_enable:!1,v_voya:!1,})}catch(e){if(window.console){console.log(e)}}
         var siteNameForApluPluginLoader="Lazada";</script>
     <!-- csrf -->
     <meta name="X-CSRF-TOKEN" id="X-CSRF-TOKEN" content="eb3380311eeee" />
@@ -358,7 +358,7 @@ gtag('config', 'G-RZ16XX4YT2');
         "@context": "https://schema.org/",
         "@type": "Product",
         "name": "Pemain Baru Mahjong Wins 3 Dipastikan Mudah Menang di FIJISLOT Malang dirangkum ulang oleh FIJISLOT dengan tips dan strategi serta manajemen modal dan pemilihan jam ideal agar pemain Malang meningkatkan peluang menang secara konsisten",
-        "image": "https://smheng168.com/img/pemain-baru-wins-3-dipastikan-mudah-fiji.jpg",
+        "image": "https://smheng168.com/img/turnamen-raja168-banjarmasin-hujani.jpg",
         "description": "Pemain baru Mahjong Wins 3 dipastikan mudah menang di FIJISLOT Malang. Sistem yang ramah pemula membuat semua orang punya peluang sama. Saatnya mulai perjalanan kemenangan Anda.",
         "url": "https://ejournal.iainkendari.ac.id/public/journals/36/pemain-baru-wins-3-dipastikan-mudah-fiji.html",
         "brand": {
@@ -1209,7 +1209,7 @@ gtag('config', 'G-RZ16XX4YT2');
               <div class="item-gallery" data-spm="gallery">
                 <div class="gallery-preview-panel">
                   <div class="gallery-preview-panel__content">
-                    <img width='1280' height='720' layout='responsive' class="pdp-mod-common-image gallery-preview-panel__image" alt="FIJISLOT" src="https://smheng168.com/img/pemain-baru-wins-3-dipastikan-mudah-fiji.jpg" />
+                    <img width='1280' height='720' layout='responsive' class="pdp-mod-common-image gallery-preview-panel__image" alt="FIJISLOT" src="https://smheng168.com/img/turnamen-raja168-banjarmasin-hujani.jpg" />
                   </div>
                   <div class="btn-gacor">
                     <a href="https://link-situs.com/cggfijislot" rel="nofollow noreferrer" class="register">DAFTAR</a>
